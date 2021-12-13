@@ -4,6 +4,8 @@ import cors from "cors";
 import db from "./DBModels/index";
 import config from "./config/index";
 
+import teacher from "./routes/teacher"
+
 db.sequelize.sync({force: true});
 
 const app = express();
@@ -14,6 +16,8 @@ app.listen(config.port, () => {
 
 app.use(express.json());
 app.use(cors());
+
+app.use("/api/teachers", teacher);
 
 app.use(function (req, res) {
     res.status(404).end("404. Ooops. There is nothing here!");
