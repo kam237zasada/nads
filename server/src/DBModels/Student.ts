@@ -22,6 +22,7 @@ const Student = (sequelize: Sequelize) => {
     },
     email: {
         type: DataTypes.STRING,
+        unique: true,
         allowNull: false
     },
     password: {
@@ -30,6 +31,7 @@ const Student = (sequelize: Sequelize) => {
     },
     indexNumber: {
         type: DataTypes.INTEGER,
+        unique: true,
         allowNull: false
     }
 })

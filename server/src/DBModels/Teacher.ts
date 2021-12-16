@@ -1,6 +1,6 @@
 import { DataTypes, Sequelize } from "sequelize";
 import Joi from "joi";
-import { AddTeacher } from "../models/request/AddTeacher";
+import { AddTeacher, TeacherSignIn, UpdateTeacher, UpdateTeacherPassword } from "../models/request/TeacherRequests";
 
 export interface TeacherInstance {
     id: number,
@@ -24,6 +24,7 @@ const Teacher = (sequelize: Sequelize) => {
     },
     email: {
         type: DataTypes.STRING,
+        unique: true,
         allowNull: false
     },
     password: {
@@ -40,11 +41,41 @@ const Teacher = (sequelize: Sequelize) => {
 export function validateAddTeacher(teacher: AddTeacher) {
     const schema = Joi.object({
         email: Joi.string().email().required(),
-        firstName: Joi.string().required(),
-        secondName: Joi.string().required(),
+        firstName: Joi.string().min(3).max(50).required(),
+        secondName: Joi.string().min(2).max(50).required(),
         password: Joi.string().min(8).required(),
         confirmPassword: Joi.string().min(8).required(),
         role: Joi.string().required()
+    })
+
+    return schema.validate(teacher);
+}
+
+export function validateUpdateTeacher(teacher: UpdateTeacher) {
+    const schema = Joi.object({
+        email: Joi.string().email().required(),
+        firstName: Joi.string().min(3).max(50).required(),
+        secondName: Joi.string().min(2).max(50).required(),
+        password: Joi.string().required()
+    })
+
+    return schema.validate(teacher);
+}
+
+export function validateUpdateTeacherPassword(teacher: UpdateTeacherPassword) {
+    const schema = Joi.object({
+        currentPassword: Joi.string().required(),
+        newPassword: Joi.string().min(8).required(),
+        confirmNewPassword: Joi.string().required()
+    })
+
+    return schema.validate(teacher);
+}
+
+export function validateTeacherSignIn(teacher: TeacherSignIn) {
+    const schema = Joi.object({
+        email: Joi.string().email().required(),
+        password: Joi.string().required()
     })
 
     return schema.validate(teacher);

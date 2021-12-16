@@ -2,9 +2,9 @@ import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { TeacherInstance, validateAddTeacher } from "../../DBModels/Teacher";
 
-import db, { sequelize } from "../../DBmodels/index";
+import db from "../../DBmodels/index";
 
-import { AddTeacher } from "../../models/request/AddTeacher";
+import { AddTeacher } from "../../models/request/TeacherRequests";
 import { ErrorMessages } from "../../models/common/ErrorMessages";
 import { hashPassword } from "../../helpers/hashPassword";
 
@@ -20,6 +20,16 @@ const addTeacher = async (req: Request, res: Response) => {
 
     if(body.password !== body.confirmPassword) { return res.status(StatusCodes.BAD_REQUEST).send("Podane hasła muszą być identyczne")};
 
+    const teacherExists: TeacherInstance = await Teacher.findOne({
+        where: {
+            email: body.email
+        }
+    });
+
+    if(teacherExists) {
+        return res.status(StatusCodes.BAD_REQUEST).send("Konto nauczyciela z takim adresem email już istnieje. Prosze podaj inny email")
+    }
+
     const hashedPassword = await hashPassword(body.password);
 
     try {
@@ -29,12 +39,19 @@ const addTeacher = async (req: Request, res: Response) => {
             secondName: body.secondName,
             password: hashedPassword,
             role: body.role
-        }, {
-            fields: ["email", "firstName", "secondName", "role"]
         })
 
-        return res.status(StatusCodes.OK).send(teacher);
+        return res.status(StatusCodes.OK).send({
+            message: "Nowy nauczyciel dodany",
+            teacher: {
+                id: teacher.id,
+                email: teacher.email,
+                firstName: teacher.firstName,
+                secondName: teacher.secondName,
+                role: teacher.role
+            }});
     } catch(err) {
+        console.log(err);
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(ErrorMessages.INTERNAL_SERVER_ERROR);
     }
 

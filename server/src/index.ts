@@ -6,7 +6,7 @@ import config from "./config/index";
 
 import teacher from "./routes/teacher"
 
-db.sequelize.sync({force: true});
+db.sequelize.sync();
 
 const app = express();
 
